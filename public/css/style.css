@@ -1,0 +1,77 @@
+/* Placeholder for custom styles */
+
+#loadingIndicator {
+  position: fixed; /* Use fixed to overlay on top of the captured image */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ingredient-result {
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.ingredients-list {
+  margin-top: 20px;
+  margin-bottom: 50px; /* Added line for task implementation */
+}
+
+.app-name {
+  font-weight: 800;
+  background: -webkit-linear-gradient(#05849D, #CF3ABB);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+#captureIngredients, #captureAgain {
+  padding: 12px;
+  font-weight: 200;
+  width: 100%; /* Ensure buttons take the full width of their parent */
+}
+
+#captureIngredients {
+  background-image: linear-gradient(to right, #05849D, #CF3ABB);
+  color: #fff; /* Ensures text is legible against the gradient background */
+  border: none; /* Optional: Removes the default border */
+}
+
+#captureIngredients:hover {
+  background-image: linear-gradient(to right, #046B82, #B530A4); /* Slightly darker gradient for hover state */
+}
+
+#captureIngredients:active {
+  background-image: linear-gradient(to right, #035A70, #9A2590); /* Even darker gradient for active state */
+}
+
+/* Adjust styles for the .main-container class */
+.main-container {
+  display: block; /* Changed from flex to block to stack elements vertically */
+  max-width: 620px;
+  width: 100%;
+  margin: auto; /* Ensures center alignment */
+}
+
+video {
+  width: 100%; /* Ensure video takes the full width of its parent */
+}
+
+.analysis-results {
+  width: 100%; /* Ensure analysis results take the full width of their parent */
+}
+
+.captured-image-container {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Prevents the captured image from overflowing */
+  max-width: 100%; /* Ensures the container does not exceed the width of its parent */
+  margin-top: 20px; /* Provides space between the video feed and the captured image */
+}

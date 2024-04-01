@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+  <body>
+<%- include('partials/_header.ejs') %>
+    <!-- Add the 'main-container' class to the main tag -->
+    <main role="main" class="container mt-4 main-container">
+      <div class="text-center">
+        <h1 class="app-name">Ingredient check</h1>
+      </div>
+      <div class="camera-controls text-center mt-4">
+        <video id="video" width="640" height="480" autoplay></video>
+        <div class="captured-image-container"></div>
+        <br>
+        <button id="captureIngredients" class="btn btn-success mt-2" disabled>Capture Ingredients</button>
+        <!-- Added Capture Again button -->
+        <button id="captureAgain" class="btn btn-secondary mt-2" style="display: none;">Capture Again</button>
+      </div>
+      <!-- New section for displaying analysis results -->
+      <div id="analysisResults" class="analysis-results mt-4">
+        <!-- Results will be dynamically inserted here -->
+      </div>
+    </main>
+  </body>
+<%- include('partials/_footer.ejs') %>
+  <script src="/js/main.js"></script>
+</html>
