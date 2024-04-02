@@ -1,14 +1,12 @@
 // Load environment variables
 require("dotenv").config();
-const mongoose = require("mongoose");
 const express = require("express");
 const session = require("express-session");
-const MongoStore = require('connect-mongo');
 const authRoutes = require("./routes/authRoutes");
 const apiRoutes = require('./routes/apiRoutes'); // Include the new API routes
 const fileUpload = require('express-fileupload'); // Import express-fileupload
 
-if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY) {
+if (!process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY) {
   console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
   process.exit(-1);
 }
@@ -27,25 +25,13 @@ app.set("view engine", "ejs");
 // Serve static files
 app.use(express.static("public"));
 
-// Database connection
-mongoose
-  .connect(process.env.DATABASE_URL)
-  .then(() => {
-    console.log("Database connected successfully");
-  })
-  .catch((err) => {
-    console.error(`Database connection error: ${err.message}`);
-    console.error(err.stack);
-    process.exit(1);
-  });
-
-// Session configuration with connect-mongo
+// Session configuration
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.DATABASE_URL }),
+    // Note: In a production environment, it's recommended to use a persistent session store.
   }),
 );
 

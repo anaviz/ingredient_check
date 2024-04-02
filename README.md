@@ -18,14 +18,13 @@ The application utilizes a client-server model, built with Node.js and Express f
 ### Requirements
 
 - Node.js
-- MongoDB
 - A modern web browser supporting HTML5 and JavaScript.
 
 ### Quickstart
 
 1. Clone the repository.
 2. Run `npm install` to install dependencies.
-3. Rename `.env.example` to `.env` and configure the required settings.
+3. Rename `.env.example` to `.env` and configure the required settings, including `SESSION_SECRET` and `OPENAI_API_KEY`.
 4. Start the application with `npm start`.
 5. Access the application via `http://localhost:3000`.
 
