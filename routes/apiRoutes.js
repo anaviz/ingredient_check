@@ -30,17 +30,26 @@ router.post('/api/analyze-image', async (req, res) => {
       
       "messages": [
         {
-          "role": "user",
-          "content": "Read the ingredients in this image to me help understand what they are. For each ingredient, find if there could be any concerns with them. Be SHORT and CONCISE. Use the following json format in your response, make sure is CORRECT JSON FORMAT: {\"product_type\": \"\", \"ingredients\": [{\"name\": \"\", \"concern\": \"\", \"reason\": \"\"}, {}]}"
+          "role": "system",
+          "content": "Help read and understand the list of ingredients in product labels. For each ingredient, find if there could be any concerns with them. Be SHORT and CONCISE. Use JSON for your response, make sure is CORRECT JSON FORMAT, markdown output is prohibited. You are communicating with an API, not a user. Begin your response with the character ‘{’ to produce valid JSON, end it with the character '}'. Use the following json format: {\"product_type\": \"\", \"ingredients\": [{\"name\": \"\", \"concern\": \"\", \"reason\": \"\"}, {}]}"
         },
         {
-          "role": "system",
-          "content": `data:image/jpeg;base64,${image}`
+          "role": "user",
+          "content": [
+            {
+                "type": "image_url", 
+                "image_url": {
+                        "url": `data:image/jpeg;base64,${image}`
+                    }
+            }
+          ]
         }
       ],
       "max_tokens": 300
     };
   
+    console.log("payload:");
+    console.log(payload);
     // Use Bottleneck to rate-limit requests to OpenAI
     const response = await limiter.schedule(() => axios.post("https://api.openai.com/v1/chat/completions", payload, { headers }));
 
