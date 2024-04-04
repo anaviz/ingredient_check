@@ -31,7 +31,7 @@ router.post('/api/analyze-image', async (req, res) => {
       "messages": [
         {
           "role": "system",
-          "content": "Help read and understand the list of ingredients in product labels. For each ingredient, find if there could be any concerns with them. Be SHORT and CONCISE. Use JSON for your response, make sure is CORRECT JSON FORMAT, markdown output is prohibited. You are communicating with an API, not a user. Begin your response with the character ‘{’ to produce valid JSON, end it with the character '}'. Use the following json format: {\"product_type\": \"\", \"ingredients\": [{\"name\": \"\", \"concern\": \"\", \"reason\": \"\"}, {}]}"
+          "content": "Help read and understand the list of ingredients in product labels. List each ingredient and find if there could be any concerns with them. Be SHORT and CONCISE. Use RFC8259 COMPLIANT JSON for your response, without any comment. You are communicating with an API, not a user. Use the following json format without deviations: {\"product_type\": \"\", \"ingredients\": [{\"name\": \"\", \"concern\": \"\", \"reason\": \"\"}]}"
         },
         {
           "role": "user",
@@ -62,7 +62,17 @@ router.post('/api/analyze-image', async (req, res) => {
     let analysisResults;
     try {
       // Attempt to repair the JSON string before parsing
-      const repairedContent = jsonrepair(response.data.choices[0].message.content);
+      var messageContent = response.data.choices[0].message.content;
+      console.log("json before repairing:")
+      console.log(messageContent);
+      if (messageContent.includes("```")) {
+        messageContent = messageContent.replace("```json", "");
+        messageContent = messageContent.replace("```", "");
+        console.log("json without markup")
+        console.log(messageContent);
+      }
+      const repairedContent = jsonrepair(messageContent);
+      console.log("json repaired:")
       console.log(repairedContent);
       const parsedContent = JSON.parse(repairedContent);
       console.log("Analysis result content repaired and parsed successfully.");

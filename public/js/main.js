@@ -46,23 +46,20 @@ document.addEventListener('DOMContentLoaded', function() {
         imageContainer.appendChild(capturedImageElement); // Append the captured image to the container
         imageContainer.style.display = 'flex'; // Make the container visible
       }
-      capturedImageElement.src = imageUrl;
-
-      // Hide the video element
-      video.style.display = 'none';
-
-      canvas.toBlob(function(blob) {
-        sendImageForAnalysis(blob);
-      }, 'image/jpeg');
-
-      // Stop the camera stream
-      if (stream) {
-        stream.getTracks().forEach(track => {
-          track.stop();
-          console.log("Camera stream stopped.");
-        });
-        captureButton.disabled = true; // Disable the 'Capture Ingredients' button
-      }
+      resizeImageIfNecessary(imageUrl, function(resizedImageUrl) {
+        capturedImageElement.src = resizedImageUrl;
+        video.style.display = 'none';
+        canvas.toBlob(function(blob) {
+          sendImageForAnalysis(blob);
+        }, 'image/jpeg');
+        if (stream) {
+          stream.getTracks().forEach(track => {
+            track.stop();
+            console.log("Camera stream stopped.");
+          });
+          captureButton.disabled = true; // Disable the 'Capture Ingredients' button
+        }
+      });
     } catch (error) {
       console.error('Error capturing or converting image:', error);
       // Display error message to the user
@@ -71,6 +68,33 @@ document.addEventListener('DOMContentLoaded', function() {
       // Automatically trigger the 'Capture Again' functionality
       document.getElementById('captureAgain').click();
     }
+  }
+
+  function resizeImageIfNecessary(imageUrl, callback) {
+    const img = new Image();
+    img.onload = function() {
+      let width = img.width;
+      let height = img.height;
+      const maxHeight = 320;
+
+      if (height > maxHeight) {
+        const ratio = maxHeight / height;
+        width = width * ratio;
+        height = height * ratio;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const resizedImageUrl = canvas.toDataURL('image/jpeg');
+        callback(resizedImageUrl);
+      } else {
+        callback(imageUrl);
+      }
+    };
+    img.src = imageUrl;
   }
 
   // Function to show loading indicator
