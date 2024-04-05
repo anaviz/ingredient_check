@@ -75,3 +75,20 @@ video {
   max-width: 100%; /* Ensures the container does not exceed the width of its parent */
   margin-top: 20px; /* Provides space between the video feed and the captured image */
 }
+
+/* Responsive design adjustments for devices with screens smaller than 768px */
+@media (max-width: 768px) {
+  #captureIngredients, #captureAgain {
+    font-size: 14px; /* Smaller font size for mobile */
+    padding: 8px 16px; /* Smaller padding to fit comfortably on mobile screens */
+  }
+
+  video {
+    max-width: 100%; /* Ensures video feed does not exceed screen's width */
+    height: auto; /* Maintain aspect ratio */
+  }
+
+  .main-container {
+    padding: 0 15px; /* Adjust container padding for mobile screens */
+  }
+}

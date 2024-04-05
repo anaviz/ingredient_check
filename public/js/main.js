@@ -12,7 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Function to start the camera stream
   function openCamera() {
-    navigator.mediaDevices.getUserMedia({ video: true })
+    const constraints = {
+      video: { facingMode: "environment" } // Prefer the rear camera
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
       .then(function(mediaStream) {
         stream = mediaStream; // Store the stream globally
         video.srcObject = stream;
@@ -20,9 +24,22 @@ document.addEventListener('DOMContentLoaded', function() {
         captureButton.style.display = 'inline-block'; // Make sure the capture button is visible
         console.log("Camera has been successfully opened and stream started.");
       })
-      .catch(function(err) {
-        console.error("Error accessing the camera: ", err);
-        alert("An error occurred while trying to access the camera. Please check your device settings and permissions.");
+      .catch(function() {
+        console.error("Rear camera not accessible. Attempting to access the default camera.");
+        // Fallback to the default camera if the rear camera is not accessible
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function(mediaStream) {
+            stream = mediaStream;
+            video.srcObject = stream;
+            captureButton.disabled = false;
+            captureButton.style.display = 'inline-block';
+            console.log("Fallback to the default camera was successful.");
+          })
+          .catch(function(err) {
+            console.error("Error accessing any camera: ", err);
+            errorMessageDiv.textContent = 'Failed to access the camera, please check your device settings and permissions.';
+            errorMessageDiv.style.display = 'block';
+          });
       });
   }
 
@@ -75,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
     img.onload = function() {
       let width = img.width;
       let height = img.height;
-      const maxHeight = 320;
+      const maxHeight = 300;
 
       if (height > maxHeight) {
         const ratio = maxHeight / height;
@@ -184,12 +201,23 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Event listener for the capture button
-  captureButton.addEventListener('click', function() {
-    captureImage(); // Call the function to capture the image when the button is clicked
-  });
+  captureButton.addEventListener('click', captureImage);
 
-  // Event listener for the 'Capture Again' button
-  document.getElementById('captureAgain').addEventListener('click', function() {
+  // Adding touch event listeners for touch-friendly interactions
+  captureButton.addEventListener('touchstart', function(event) {
+    event.preventDefault(); // Prevent the default touch behavior like scrolling
+    captureImage(); // Execute the capture image function
+  }, { passive: false });
+
+  const captureAgainButton = document.getElementById('captureAgain');
+  captureAgainButton.addEventListener('touchstart', function(event) {
+    event.preventDefault(); // Prevent the default touch behavior
+    // Directly call the function associated with 'Capture Again' functionality
+    captureAgain();
+  }, { passive: false });
+
+  // Function to encapsulate 'Capture Again' functionality
+  function captureAgain() {
     // Clear the analysis results
     resultsDiv.innerHTML = '';
 
@@ -201,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Hide the 'Capture Again' button
-    this.style.display = 'none';
+    captureAgainButton.style.display = 'none';
 
     // Clear and hide the error message div
     errorMessageDiv.textContent = '';
@@ -216,7 +244,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Restart the camera stream
     openCamera();
-  });
+  }
+
+  // Event listener for the 'Capture Again' button
+  captureAgainButton.addEventListener('click', captureAgain);
 
   // Immediately start the camera when the page loads
   openCamera();
