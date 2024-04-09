@@ -6,6 +6,8 @@ A web application designed to inform users about potential health risks associat
 
 The application utilizes a client-server model, built with Node.js and Express for the backend, and EJS, Bootstrap, and vanilla JavaScript for the frontend. It incorporates OpenAI's GPT-4-Vision-Preview for ingredient analysis. The application architecture supports real-time camera access, image capture, and analysis rendering.
 
+![ingredient-check](https://github.com/anaviz/ingredient_check/assets/4655004/c5039ff3-3b84-4b4d-8da6-bdf64614dfd6)
+
 ## Features
 
 - Immediate camera access for ingredient list capture.
