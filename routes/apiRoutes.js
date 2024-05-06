@@ -63,7 +63,7 @@ router.post('/api/analyze-image', async (req, res) => {
       "messages": [
         {
           "role": "system",
-          "content": "Help read and understand the list of ingredients in product labels. For each ingredient, find if there could be any concerns with them. Be SHORT and CONCISE. Use RFC8259 COMPLIANT JSON for your response, without any comment. You are communicating with an API, not a user. Use the following json format without deviations: {\"product_type\": \"\", \"ingredients\": [{\"name\": \"\", \"concern\": \"\", \"reason\": \"\"}]}"
+          "content": "Help read and understand the list of ingredients in product labels. For each of the listed ingredients, find if there could be any concerns with them and what is commonly used for in this type of product, as well as the level of concern: none, low, medium, high, or critical. Be SHORT and CONCISE in the description. Make sure you assess all ingredients. Use RFC8259 COMPLIANT JSON for your response, without any comment. You are communicating with an API, not a user. Use the following json format without deviations: {\"product_type\": \"\", \"ingredients\": [{\"name\": \"\", \"concernLevel\": \"\", \"reason\": \"\"}]}"
         },
         {
           "role": "user",
@@ -113,7 +113,7 @@ router.post('/api/analyze-image', async (req, res) => {
         product_type: parsedContent.product_type,
         ingredients: parsedContent.ingredients.map(ingredient => ({
           name: ingredient.name,
-          concern: ingredient.concern,
+          concern: ingredient.concernLevel,
           reason: ingredient.reason
         }))
       };

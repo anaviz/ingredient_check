@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
     img.onload = function() {
       let width = img.width;
       let height = img.height;
-      const maxHeight = 300;
+      const maxHeight = 500;
 
       if (height > maxHeight) {
         const ratio = maxHeight / height;
