@@ -5,6 +5,9 @@ const Bottleneck = require('bottleneck'); // Import Bottleneck for rate limiting
 const jsonrepair = require('jsonrepair').jsonrepair; // Corrected import for jsonrepair
 const router = express.Router();
 
+const googleApiKey = process.env.GOOGLE_API_KEY;
+const openAiKey = process.env.OPENAI_API_KEY;
+
 // Initialize Bottleneck limiter
 const limiter = new Bottleneck({
   minTime: 1000 // Minimum time (in milliseconds) between requests
@@ -12,49 +15,70 @@ const limiter = new Bottleneck({
 
 // POST endpoint to analyze image
 router.post('/api/analyze-image', async (req, res) => {
+  // Check if the request has an image
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send('No image file provided.');
   }
 
   const imageFile = req.files.image;
-  const image = imageFile.data.toString('base64');
+  const image64 = imageFile.data.toString('base64');
 
   try {
-    const headers = {
+    // Google Vision API call
+    const visionResponse = await axios.post(
+      `https://vision.googleapis.com/v1/images:annotate/?key=${googleApiKey}`,
+      {
+        "requests": [
+          {
+            "image": {
+              "content": image64
+            },
+            "features": [
+              {
+                "type": "TEXT_DETECTION"
+              }
+            ]
+          }
+        ]
+      }
+    );
+
+    // Check if text was detected
+    if (!visionResponse.data.responses[0].fullTextAnnotation) {
+      console.error('No text found in image.');
+      return res.status(400).send('No text found in image.');
+    }
+
+    const detectedText = visionResponse.data.responses[0].fullTextAnnotation.text;
+    const formattedText = detectedText.replace(/\n/g, ' ');
+
+    // OpenAI API call with detected text
+    const llmCallHeaders = {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      "Authorization": `Bearer ${openAiKey}`
     };
-  
-    const payload = {
-      "model": "gpt-4-vision-preview",
-      
+
+    const llmCallPayload = {
+      "model": "gpt-4-turbo",
       "messages": [
         {
           "role": "system",
-          "content": "Help read and understand the list of ingredients in product labels. List each ingredient and find if there could be any concerns with them. Be SHORT and CONCISE. Use RFC8259 COMPLIANT JSON for your response, without any comment. You are communicating with an API, not a user. Use the following json format without deviations: {\"product_type\": \"\", \"ingredients\": [{\"name\": \"\", \"concern\": \"\", \"reason\": \"\"}]}"
+          "content": "Help read and understand the list of ingredients in product labels. For each ingredient, find if there could be any concerns with them. Be SHORT and CONCISE. Use RFC8259 COMPLIANT JSON for your response, without any comment. You are communicating with an API, not a user. Use the following json format without deviations: {\"product_type\": \"\", \"ingredients\": [{\"name\": \"\", \"concern\": \"\", \"reason\": \"\"}]}"
         },
         {
           "role": "user",
-          "content": [
-            {
-                "type": "image_url", 
-                "image_url": {
-                        "url": `data:image/jpeg;base64,${image}`
-                    }
-            }
-          ]
+          "content": formattedText
         }
-      ],
-      "max_tokens": 300
+      ]
     };
-  
-    console.log("payload:");
-    console.log(payload);
+
+    console.log("llmCallPayload:");
+    console.log(llmCallPayload);
     // Use Bottleneck to rate-limit requests to OpenAI
-    const response = await limiter.schedule(() => axios.post("https://api.openai.com/v1/chat/completions", payload, { headers }));
+    const openAIResponse = await limiter.schedule(() => axios.post("https://api.openai.com/v1/chat/completions", llmCallPayload, { llmCallHeaders }));
 
     // Check if response.data.choices[0].message.content exists and is a valid JSON string
-    if (!response.data.choices[0] || !response.data.choices[0].message || !response.data.choices[0].message.content) {
+    if (!openAIResponse.data.choices[0] || !openAIResponse.data.choices[0].message || !openAIResponse.data.choices[0].message.content) {
       console.error('No analysis result content found in the response from OpenAI.');
       return res.status(500).send('Failed to analyze image due to missing analysis result from OpenAI.');
     }
@@ -62,7 +86,7 @@ router.post('/api/analyze-image', async (req, res) => {
     let analysisResults;
     try {
       // Attempt to repair the JSON string before parsing
-      var messageContent = response.data.choices[0].message.content;
+      var messageContent = openAIResponse.data.choices[0].message.content;
       console.log("json before repairing:")
       console.log(messageContent);
       if (messageContent.includes("```")) {
@@ -116,4 +140,5 @@ router.post('/api/analyze-image', async (req, res) => {
   }
 });
 
+module.exports = router;
 module.exports = router;

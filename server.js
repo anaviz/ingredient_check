@@ -6,7 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const apiRoutes = require('./routes/apiRoutes'); // Include the new API routes
 const fileUpload = require('express-fileupload'); // Import express-fileupload
 
-if (!process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY) {
+if (!process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY || !process.env.GOOGLE_API_KEY) {
   console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
   process.exit(-1);
 }
