@@ -75,7 +75,7 @@ router.post('/api/analyze-image', async (req, res) => {
     console.log("llmCallPayload:");
     console.log(llmCallPayload);
     // Use Bottleneck to rate-limit requests to OpenAI
-    const openAIResponse = await limiter.schedule(() => axios.post("https://api.openai.com/v1/chat/completions", llmCallPayload, { llmCallHeaders }));
+    const openAIResponse = await limiter.schedule(() => axios.post("https://api.openai.com/v1/chat/completions", llmCallPayload, { headers: llmCallHeaders }));
 
     // Check if response.data.choices[0].message.content exists and is a valid JSON string
     if (!openAIResponse.data.choices[0] || !openAIResponse.data.choices[0].message || !openAIResponse.data.choices[0].message.content) {
@@ -140,5 +140,4 @@ router.post('/api/analyze-image', async (req, res) => {
   }
 });
 
-module.exports = router;
 module.exports = router;
