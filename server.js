@@ -1,6 +1,10 @@
 // Load environment variables
 require("dotenv").config();
 const express = require("express");
+const https = require('https');
+const http = require('http');
+const fs=require('fs');
+const path=require('path');
 const session = require("express-session");
 const authRoutes = require("./routes/authRoutes");
 const apiRoutes = require('./routes/apiRoutes'); // Include the new API routes
@@ -13,6 +17,12 @@ if (!process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY || !process.env.G
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// HTTPS server options
+const options = {
+  key:fs.readFileSync(path.join(__dirname,'./cert/client-key.pem')),
+  cert:fs.readFileSync(path.join(__dirname,'./cert/client-cert.pem'))
+};
 
 // Middleware to parse request bodies
 app.use(express.urlencoded({ extended: true }));
@@ -80,6 +90,9 @@ app.use((err, req, res, next) => {
   res.status(500).send("There was an error serving your request.");
 });
 
-app.listen(port, () => {
+http.createServer(app).listen(port,()=>{
   console.log(`Server running at http://localhost:${port}`);
+});
+https.createServer(options, app).listen(1337,()=>{
+  console.log('Secure server running at https://localhost:1337')
 });
